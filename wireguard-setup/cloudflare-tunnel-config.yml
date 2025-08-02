@@ -1,0 +1,35 @@
+# Cloudflare Tunnel Configuration for WireGuard VPN
+# This allows you to expose your WireGuard server through Cloudflare without port forwarding
+
+tunnel: YOUR_TUNNEL_ID_HERE
+credentials-file: /path/to/your/tunnel/credentials.json
+
+# Ingress rules - order matters!
+ingress:
+  # Route VPN traffic through Cloudflare Tunnel
+  - hostname: vpn.yourdomain.com
+    service: udp://localhost:51820
+    originRequest:
+      # Optimize for VPN traffic
+      noTLSVerify: true
+      connectTimeout: 30s
+      tlsTimeout: 30s
+      tcpKeepAlive: 30s
+      keepAliveTimeout: 90s
+      keepAliveConnections: 10
+
+  # Optional: Web interface for WireGuard management (if using wg-easy)
+  - hostname: wg-admin.yourdomain.com
+    service: http://localhost:51821
+    originRequest:
+      httpHostHeader: localhost
+
+  # Catch-all rule (required)
+  - service: http_status:404
+
+# Optional: Warp routing for better performance
+warp-routing:
+  enabled: true
+
+# Logging configuration
+loglevel: info

@@ -1,0 +1,41 @@
+# Sensitive configuration files
+tunnel-credentials.json
+*.key
+*.conf
+
+# WireGuard generated configs
+wireguard-config/
+wg-easy-data/
+
+# Docker volumes
+**/data/
+**/config/
+
+# Backup files
+*.bak
+*.backup
+*.tar.gz
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/
