@@ -1,13 +1,13 @@
 # Cloudflare Tunnel Configuration for WireGuard VPN
 # This allows you to expose your WireGuard server through Cloudflare without port forwarding
 
-tunnel: YOUR_TUNNEL_ID_HERE
+tunnel: 278d633b-37a9-42ee-93c5-621173cc8ab5
 credentials-file: /path/to/your/tunnel/credentials.json
 
 # Ingress rules - order matters!
 ingress:
   # Route VPN traffic through Cloudflare Tunnel
-  - hostname: vpn.yourdomain.com
+  - hostname: vpn.sashi.live
     service: udp://localhost:51820
     originRequest:
       # Optimize for VPN traffic
@@ -19,7 +19,7 @@ ingress:
       keepAliveConnections: 10
 
   # Optional: Web interface for WireGuard management (if using wg-easy)
-  - hostname: wg-admin.yourdomain.com
+  - hostname: wg-admin.sashi.online
     service: http://localhost:51821
     originRequest:
       httpHostHeader: localhost

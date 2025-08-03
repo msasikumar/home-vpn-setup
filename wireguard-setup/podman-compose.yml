@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  wireguard:
+    image: docker.io/linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+      - SERVERURL=vpn.yourdomain.com  # Your Cloudflare tunnel domain
+      - SERVERPORT=51820
+      - PEERS=5  # Number of client configs to generate
+      - PEERDNS=1.1.1.1,8.8.8.8
+      - INTERNAL_SUBNET=10.0.0.0/24
+      - ALLOWEDIPS=192.168.0.0/16,10.0.0.0/24  # Your home network + VPN network
+    volumes:
+      - ./wireguard-config:/config:Z
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - "51820:51820/udp"
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    restart: unless-stopped
+    networks:
+      - wireguard-net
+
+  # Optional: WireGuard Easy - Web UI for management
+  wg-easy:
+    image: docker.io/weejewel/wg-easy:latest
+    container_name: wg-easy
+    environment:
+      - WG_HOST=vpn.yourdomain.com  # Your Cloudflare tunnel domain
+      - PASSWORD=your-secure-password-here  # Change this!
+      - WG_DEFAULT_ADDRESS=10.0.0.x
+      - WG_DEFAULT_DNS=1.1.1.1,8.8.8.8
+      - WG_ALLOWED_IPS=192.168.0.0/16,10.0.0.0/24
+      - WG_PERSISTENT_KEEPALIVE=25
+    volumes:
+      - ./wg-easy-data:/etc/wireguard:Z
+    ports:
+      - "51821:51821/tcp"  # Web UI port
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    restart: unless-stopped
+    depends_on:
+      - wireguard
+    networks:
+      - wireguard-net
+
+  # Cloudflare Tunnel (cloudflared)
+  cloudflared:
+    image: docker.io/cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflare-tunnel-config.yml:/etc/cloudflared/config.yml:ro,Z
+      - ./tunnel-credentials.json:/etc/cloudflared/credentials.json:ro,Z
+    restart: unless-stopped
+    depends_on:
+      - wireguard
+      - wg-easy
+    networks:
+      - wireguard-net
+
+networks:
+  wireguard-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
