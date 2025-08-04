@@ -11,12 +11,12 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=America/Chicago
-      - SERVERURL=vpn.yourdomain.com  # Your Cloudflare tunnel domain
+      - SERVERURL=vpn.sashi.online  # Your Cloudflare tunnel domain
       - SERVERPORT=51820
       - PEERS=5  # Number of client configs to generate
       - PEERDNS=1.1.1.1,8.8.8.8
       - INTERNAL_SUBNET=10.0.0.0/24
-      - ALLOWEDIPS=192.168.0.0/16,10.0.0.0/24  # Your home network + VPN network
+      - ALLOWEDIPS=default,10.0.0.0/24  # Your home network + VPN network
     volumes:
       - ./wireguard-config:/config:Z
       - /lib/modules:/lib/modules:ro
@@ -34,11 +34,11 @@ services:
     image: docker.io/weejewel/wg-easy:latest
     container_name: wg-easy
     environment:
-      - WG_HOST=vpn.yourdomain.com  # Your Cloudflare tunnel domain
-      - PASSWORD=your-secure-password-here  # Change this!
+      - WG_HOST=vpn.sashi.online  # Your Cloudflare tunnel domain
+      - PASSWORD=Sashi@142305%  # Change this!
       - WG_DEFAULT_ADDRESS=10.0.0.x
       - WG_DEFAULT_DNS=1.1.1.1,8.8.8.8
-      - WG_ALLOWED_IPS=192.168.0.0/16,10.0.0.0/24
+      - WG_ALLOWED_IPS=default,10.0.0.0/24
       - WG_PERSISTENT_KEEPALIVE=25
     volumes:
       - ./wg-easy-data:/etc/wireguard:Z
