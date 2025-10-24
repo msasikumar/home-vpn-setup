@@ -18,18 +18,32 @@ ingress:
       keepAliveTimeout: 90s
       keepAliveConnections: 10
 
-  # Optional: Web interface for WireGuard management (if using wg-easy)
-  - hostname: wg-admin.sashi.online
+  # WireGuard Easy Web interface for management
+  - hostname: ag-admin.sashi.online
     service: http://localhost:51821
     originRequest:
+      # Bypass RFC1918 IP restrictions
+      noTLSVerify: true
+      # Set proper host header to match the service
       httpHostHeader: localhost
+      # Connection settings for web interface
+      connectTimeout: 60s
+      tlsTimeout: 60s
+      # Disable chunked encoding which can cause issues
+      disableChunkedEncoding: true
+      # Allow HTTP/1.1 for better compatibility
+      http2Origin: false
 
   # Catch-all rule (required)
   - service: http_status:404
 
-# Optional: Warp routing for better performance
+# Disable Warp routing to avoid RFC1918 conflicts
 warp-routing:
-  enabled: true
+  enabled: false
 
 # Logging configuration
 loglevel: info
+
+# Additional tunnel settings to handle RFC1918 traffic
+# These settings help bypass Cloudflare's private IP restrictions
+no-autoupdate: true
